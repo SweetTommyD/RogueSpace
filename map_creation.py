@@ -13,8 +13,14 @@ class Map:
 
         self.map_array = np.zeros((self.x, self.y), dtype=object)
 
+        star_mass = 8
+        planet_mass = 4
+        moon_mass = 1
+
         if self.scope == "galaxy_map":
             self.make_galaxy(50, 75)
+        if self.scope == "star_system":
+            self.make_system("system", 10, 15, star_mass, planet_mass, moon_mass)
 
     def scope(self):
         return self.scope
@@ -40,51 +46,30 @@ class Map:
 
         return self.map_array
 
-    # def draw_lanes(map_array, lane_number=4):
-    #
-    #     global galaxy_size
-    #
-    #     lane_array = np.array(int)
-    #
-    #     start_x = self.x
-    #     start_y = self.y
-    #
-    #     star_count = galaxy_size
-    #     lane_count = lane_number
-    #
-    #     print star_count
-    #
-    #     while star_count > 0:
-    #         print "lanecount- " + str(lane_count)
-    #         for y in range(start_y):
-    #             for x in range(start_x):
-    #                 while lane_count > 0:
-    #                     if map_array[x, y] > 0:
-    #                         origin = [x, y]
-    #                         print "origin" + str(origin)
-    #                         np.append(lane_array, origin)
-    #                         lane_count -= 1
-    #                     if lane_count == 1:
-    #                         start_x = x
-    #                         print start_x
-    #                         start_y = y
-    #                         print start_y
-    #
-    #         for x in (lane_array[0], lane_array[2], ++4):
-    #             x1 = lane_array[0]
-    #             y1 = lane_array[1]
-    #             x2 = lane_array[2]
-    #             y2 = lane_array[3]
-    #             libtcod.line_init(x1, y1, x2, y2)
-    #             x, y = libtcod.line_step()
-    #             print "step"
-    #             libtcod.console_set_char_background(con, x, y, libtcod.Color(255, 255, 255), libtcod.BKGND_SET)
-    #
-    #         star_count -= 1
+    def make_system(self, area, planet_number, moon_number, star_mass, planet_mass, moon_mass):
+        centerx = self.x/2
+        centery = self.y/2
 
-        #draw_lanes(self.map_array, libtcod.random_get_int(0, 1, 4))
+        for x in range(centerx, centerx+star_mass):
+            for y in range(centery, centery+star_mass):
+                self.map_array[x][y] = 1
 
-    # def make_system(self.area):
+        while planet_number > 0:
+            planet_x = libtcod.random_get_int(0, 0, self.x-planet_mass)
+            planet_y = libtcod.random_get_int(0, 0, self.y-planet_mass)
+            for x in range(planet_x, planet_x+planet_mass):
+                for y in range(planet_y, planet_y+planet_mass):
+                    self.map_array[x][y] = 2
+            planet_number -= 1
+
+        while moon_number > 0:
+            moon_x = libtcod.random_get_int(0, 0, self.x-moon_mass)
+            moon_y = libtcod.random_get_int(0, 0, self.y-moon_mass)
+            for x in range(moon_x, moon_x+moon_mass):
+                for y in range(moon_y, moon_y+moon_mass):
+                    self.map_array[x][y] = 3
+            moon_number -= 1
+
     #
     # def make_planet(self.area):
     #

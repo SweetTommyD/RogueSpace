@@ -15,8 +15,12 @@ def display_map(Map):
     for y in range(Map.y):
         for x in range(Map.x):
             #print Map.map_array[x, y]
-            if Map.map_array[x, y] > 0:
+            if Map.map_array[x, y] == 1:
                 libtcod.console_set_char_background(con, x, y, libtcod.Color(255, 255, 255), libtcod.BKGND_SET)
+            elif Map.map_array[x, y] == 2:
+                libtcod.console_set_char_background(con, x, y, libtcod.Color(0, 0, 255), libtcod.BKGND_SET)
+            elif Map.map_array[x, y] == 3:
+                libtcod.console_set_char_background(con, x, y, libtcod.Color(255, 255, 0), libtcod.BKGND_SET)
             else:
                 libtcod.console_set_char_background(con, x, y, libtcod.Color(0, 0, 0), libtcod.BKGND_SET)
 
@@ -56,7 +60,7 @@ def handle_keys():
 
 player = Objects.Ship(10, 10, "A", "player", libtcod.Color(255, 0, 0), False, True, 10, 10, 1, 1)
 
-galaxy_map = mc.Map(MAP_WIDTH, MAP_HEIGHT, "galaxy_map")
+system_map = mc.Map(MAP_WIDTH, MAP_HEIGHT, "star_system")
 
 while not libtcod.console_is_window_closed():
     game_state = "playing"
@@ -64,7 +68,7 @@ while not libtcod.console_is_window_closed():
     libtcod.console_init_root(SCREEN_WIDTH, SCREEN_HEIGHT, 'python/libtcod tutorial', False)
     con = libtcod.console_new(MAP_WIDTH, MAP_HEIGHT)
     libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS | libtcod.EVENT_MOUSE, key, mouse)
-    display_map(galaxy_map)
+    display_map(system_map)
     player.draw(con)
     handle_keys()
     libtcod.console_blit(con, 0, 0, MAP_WIDTH, MAP_HEIGHT, 0, 0, 0)
