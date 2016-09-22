@@ -1,9 +1,10 @@
 import libtcodpy as libtcod
+import math
 
 class Object:
     #this is a generic object: the player, a monster, an item, the stairs...
     #it's always represented by a character on screen.
-    def __init__(self, x, y, char, name, color, blocks=False, always_visible=False, fighter=None, ai=None, item=None, equipment=None):
+    def __init__(self, x, y, char, name, color, blocks=False, always_visible=False):
         self.x = x
         self.y = y
         self.char = char
@@ -11,29 +12,8 @@ class Object:
         self.color = color
         self.blocks = blocks
         self.always_visible = always_visible
-        self.fighter = fighter
-        if self.fighter:  #let the fighter component know who owns it
-            self.fighter.owner = self
-
-        self.ai = ai
-        if self.ai:  #let the AI component know who owns it
-            self.ai.owner = self
-
-        self.item = item
-        if self.item:  #let the Item component know who owns it
-            self.item.owner = self
-
-        self.equipment = equipment
-        if self.equipment:  #let the Equipment component know who owns it
-            self.equipment.owner = self
-
-            #there must be an Item component for the Equipment component to work properly
-            self.item = Item()
-            self.item.owner = self
 
     def move(self, dx, dy):
-        #move by the given amount, if the destination is not blocked
-        if not is_blocked(self.x + dx, self.y + dy):
             self.x += dx
             self.y += dy
 
@@ -59,20 +39,67 @@ class Object:
         #return the distance to some coordinates
         return math.sqrt((x - self.x) ** 2 + (y - self.y) ** 2)
 
-    def send_to_back(self):
-        #make this object be drawn first, so all others appear above it if they're in the same tile.
-        global objects
-        objects.remove(self)
-        objects.insert(0, self)
-
-    def draw(self):
+    def draw(self, con):
         #only show if it's visible to the player; or it's set to "always visible" and on an explored tile
-        if (libtcod.map_is_in_fov(fov_map, self.x, self.y) or
-                (self.always_visible and map[self.x][self.y].explored)):
+        # if (libtcod.map_is_in_fov(fov_map, self.x, self.y) or
+        #         (self.always_visible and map[self.x][self.y].explored)):
             #set the color and then draw the character that represents this object at its position
-            libtcod.console_set_default_foreground(con, self.color)
-            libtcod.console_put_char(con, self.x, self.y, self.char, libtcod.BKGND_NONE)
+        libtcod.console_set_default_foreground(con, self.color)
+        libtcod.console_put_char(con, self.x, self.y, self.char, libtcod.BKGND_NONE)
 
-    def clear(self):
-        #erase the character that represents this object
-        libtcod.console_put_char(con, self.x, self.y, ' ', libtcod.BKGND_NONE)
+class Item(Object):
+    def __init__(self, x, y, char, name, color, blocks, always_visible, effect, duration, aoe, message, use_self=False,
+                 use_friend=False, use_foe=False):
+        Object.__init__(self, x, y, char, name, color, blocks, always_visible)
+        self.effect = effect
+        self.duration = duration
+        self. aoe = aoe
+        self.message = message
+        self.use_self = use_self
+        self.use_friend = use_friend
+        self.use_foe = use_foe
+
+        #def enact_effect
+        #def calculate_effect:
+        # while < duration
+        #   if_use_self = false
+        #       if aoe < distance_to(friend, foe) return false
+        #           else:
+        #               enact_effect
+
+class Equipment(Object):
+    def __init__(self, x, y, char, name, color, blocks, always_visible, effect, stat_change, ship_eq, player_eq,
+                 equipped=False):
+        Object.__init__(self, x, y, char, name, color, blocks, always_visible)
+        self.effect = effect
+        self.stat_change = stat_change
+        self.ship_eq = ship_eq
+        self.player_eq = player_eq
+        self.equipped = equipped
+
+        #def enact_effect
+        #def stat_delta
+        #if ship_eq and equipped:
+        #   enact_effect(Ship)
+        #   stat_delta(Ship)
+        #elif player_eq and equipped:
+        #   enact_effect(Player)
+        #   stat_delta(Player)
+
+class Ship(Object):
+    def __init__(self, x, y, char, name, color, blocks, always_visible, hp, sp, scope, speed):
+        Object.__init__(self, x, y, char, name, color, blocks, always_visible)
+        self. hp = hp
+        self.sp = sp
+        self.scope = scope
+        self.speed = speed
+
+class Player(Object):
+    def __init__(self, x, y, char, name, color, blocks, always_visible, hp, xp, speed):
+        Object.__init__(self, x, y, char, name, color, blocks, always_visible)
+        self.hp = hp
+        self.xp = xp
+        self.speed = speed
+
+#testing
+
