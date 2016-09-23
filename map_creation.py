@@ -47,8 +47,8 @@ class Map:
         return self.map_array
 
     def make_system(self, area, planet_number, moon_number, star_mass, planet_mass, moon_mass):
-        centerx = self.x/2
-        centery = self.y/2
+        centerx = (self.x/2) - (star_mass/2)
+        centery = (self.y/2) - (star_mass/2)
 
         for x in range(centerx, centerx+star_mass):
             for y in range(centery, centery+star_mass):
@@ -56,7 +56,7 @@ class Map:
 
         while planet_number > 0:
             planet_x = libtcod.random_get_int(0, 0, self.x-planet_mass)
-            planet_y = libtcod.random_get_int(0, 0, self.y-planet_mass)
+            planet_y = libtcod.random_get_int(0, 20, self.y-planet_mass-20)
             for x in range(planet_x, planet_x+planet_mass):
                 for y in range(planet_y, planet_y+planet_mass):
                     self.map_array[x][y] = 2
@@ -64,7 +64,7 @@ class Map:
 
         while moon_number > 0:
             moon_x = libtcod.random_get_int(0, 0, self.x-moon_mass)
-            moon_y = libtcod.random_get_int(0, 0, self.y-moon_mass)
+            moon_y = libtcod.random_get_int(0, 20, self.y-moon_mass-20)
             for x in range(moon_x, moon_x+moon_mass):
                 for y in range(moon_y, moon_y+moon_mass):
                     self.map_array[x][y] = 3
