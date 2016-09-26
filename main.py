@@ -15,14 +15,25 @@ def display_map(Map):
     for y in range(Map.y):
         for x in range(Map.x):
             #print Map.map_array[x, y]
-            if Map.map_array[x, y] == 1:
-                libtcod.console_set_char_background(con, x, y, libtcod.Color(255, 255, 255), libtcod.BKGND_SET)
-            elif Map.map_array[x, y] == 2:
-                libtcod.console_set_char_background(con, x, y, libtcod.Color(0, 0, 255), libtcod.BKGND_SET)
-            elif Map.map_array[x, y] == 3:
-                libtcod.console_set_char_background(con, x, y, libtcod.Color(255, 255, 0), libtcod.BKGND_SET)
+            o = Map.map_array[x, y]
+            #print o
+            if o != 0:
+                object_type = o.object_type
+                print object_type
             else:
-                libtcod.console_set_char_background(con, x, y, libtcod.Color(0, 0, 0), libtcod.BKGND_SET)
+                object_type = ""
+            if object_type == "star":
+                o.draw(con)
+            if object_type == "moon":
+                o.draw(con)
+            if object_type == "planet":
+                o.draw(con)
+            # elif Map.map_array[x, y] == 2:
+            #     libtcod.console_set_char_background(con, x, y, libtcod.Color(0, 0, 255), libtcod.BKGND_SET)
+            # elif Map.map_array[x, y] == 3:
+            #     libtcod.console_set_char_background(con, x, y, libtcod.Color(255, 255, 0), libtcod.BKGND_SET)
+            # else:
+            #     libtcod.console_set_char_background(con, x, y, libtcod.Color(0, 0, 0), libtcod.BKGND_SET)
 
 def handle_keys():
     global key

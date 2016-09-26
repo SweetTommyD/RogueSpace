@@ -1,5 +1,7 @@
 import libtcodpy as libtcod
 import numpy as np
+import Objects as Objects
+
 
 class Map:
 
@@ -13,14 +15,14 @@ class Map:
 
         self.map_array = np.zeros((self.x, self.y), dtype=object)
 
-        star_mass = 8
-        planet_mass = 4
-        moon_mass = 1
+        star_size = 8
+        planet_size = 4
+        moon_size = 1
 
         if self.scope == "galaxy_map":
             self.make_galaxy(50, 75)
         if self.scope == "star_system":
-            self.make_system("system", 10, 15, star_mass, planet_mass, moon_mass)
+            self.make_system("system", 10, 15, star_size, planet_size, moon_size)
 
     def scope(self):
         return self.scope
@@ -41,33 +43,40 @@ class Map:
         print "Galaxy size " + str(galaxy_size)
 
         while star_count > 0:
-            self.map_array[libtcod.random_get_int(0, 0, self.x-1), libtcod.random_get_int(0, 0, self.y-1)] = 1
+            star_x = libtcod.random_get_int(0, 0, self.x-1)
+            star_y = libtcod.random_get_int(0, 0, self.y-1)
+
+            star = Objects.CelestialObject(star_x, star_y, "S", "star", libtcod.Color(255, 255, 255), False, True,
+                                           "star", 1, 1, "stuff", "stuff", "Stuff", "stuff")
+
+            self.map_array[star_x][star_y] = star
             star_count -= 1
 
         return self.map_array
 
-    def make_system(self, area, planet_number, moon_number, star_mass, planet_mass, moon_mass):
-        centerx = (self.x/2) - (star_mass/2)
-        centery = (self.y/2) - (star_mass/2)
+    def make_system(self, area, planet_number, moon_number, star_size, planet_size, moon_size):
+        centerx = (self.x/2) - (star_size/2)
+        centery = (self.y/2) - (star_size/2)
 
-        for x in range(centerx, centerx+star_mass):
-            for y in range(centery, centery+star_mass):
-                self.map_array[x][y] = 1
+        star = Objects.CelestialObject(centerx, centery, "S", "star", libtcod.Color(255, 255, 255), False, True,
+                                       "star", 1, star_size, "stuff", "stuff", "Stuff", "stuff")
+
+        self.map_array[centerx][centery] = star
 
         while planet_number > 0:
-            planet_x = libtcod.random_get_int(0, 0, self.x-planet_mass)
-            planet_y = libtcod.random_get_int(0, 20, self.y-planet_mass-20)
-            for x in range(planet_x, planet_x+planet_mass):
-                for y in range(planet_y, planet_y+planet_mass):
-                    self.map_array[x][y] = 2
+            planet_x = libtcod.random_get_int(0, 0, self.x-planet_size)
+            planet_y = libtcod.random_get_int(0, 20, self.y-planet_size-20)
+            planet = Objects.CelestialObject(planet_x, planet_y, "P", "planet", libtcod.Color(0, 255, 255), False, True,
+                                             "planet", 1, planet_size, "stuff", "stuff", "Stuff", "stuff")
+            self.map_array[planet_x][planet_y] = planet
             planet_number -= 1
 
         while moon_number > 0:
-            moon_x = libtcod.random_get_int(0, 0, self.x-moon_mass)
-            moon_y = libtcod.random_get_int(0, 20, self.y-moon_mass-20)
-            for x in range(moon_x, moon_x+moon_mass):
-                for y in range(moon_y, moon_y+moon_mass):
-                    self.map_array[x][y] = 3
+            moon_x = libtcod.random_get_int(0, 0, self.x-moon_size)
+            moon_y = libtcod.random_get_int(0, 20, self.y-moon_size-20)
+            moon = Objects.CelestialObject(moon_x, moon_y, "M", "moon", libtcod.Color(255, 0, 255), False, True,
+                                           "moon", 1, moon_size, "stuff", "stuff", "Stuff", "stuff")
+            self.map_array[moon_x][moon_y] = moon
             moon_number -= 1
 
     #

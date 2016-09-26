@@ -101,5 +101,59 @@ class Player(Object):
         self.xp = xp
         self.speed = speed
 
+class CelestialObject(Object):
+    def __init__(self, x, y, char, name, color, blocks, always_visible, object_type, scope, size, resources, atmosphere,
+                habitated, description):
+        Object.__init__(self, x, y, char, name, color, blocks, always_visible)
+        self.scope = scope
+        self.object_type = object_type
+        self.size= size
+        self.resources = resources
+        self.atmosphere = atmosphere
+        self.habitated = habitated
+        self.description = description
+
+    def get_scope(self):
+        return self.scope
+
+    def get_resources(self):
+        return self.resources
+
+    def get_atmosphere(self):
+        return self.atmosphere
+
+    def get_habitated(self):
+        return self.habitated
+
+    def get_description(self):
+        return self.description
+
+    def draw(self, con):
+        if self.size >= 1:
+            for x in range(self.x, self.x+self.size):
+                print str(self.size)
+                for y in range(self.y, self.y+self.size):
+                    libtcod.console_set_char_background(con, x, y, self.color, libtcod.BKGND_SET)
+
+
+# class Star(CelestialObject):
+#     def __init__(self, x, y, char, name, color, blocks, always_visible, scope, atmosphere, habitated,
+#                  description, star_mass=8, resources=False):
+#         CelestialObject.__init__(self, x, y, char, name, color, blocks, always_visible, scope, resources, atmosphere,
+#                                   habitated, description)
+#
+# class Planet(CelestialObject):
+#     def __init__(self, x, y, char, name, color, blocks, always_visible, scope, atmosphere, habitated,
+#                  description, star_mass=8, resources=False):
+#         CelestialObject.__init__(self, x, y, char, name, color, blocks, always_visible, scope, resources, atmosphere,
+#                                   habitated, description)
+#
+# class Moon(CelestialObject):
+#     def __init__(self, x, y, char, name, color, blocks, always_visible, scope, atmosphere, habitated,
+#                  description, star_mass=8, resources=False):
+#         CelestialObject.__init__(self, x, y, char, name, color, blocks, always_visible, scope, resources, atmosphere,
+#                                   habitated, description)
+
+
 #testing
 
