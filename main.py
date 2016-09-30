@@ -13,23 +13,32 @@ mouse = libtcod.Mouse()
 
 def display_map(Map):
     for y in range(Map.y):
+        #print "this is y " + str(y)
         for x in range(Map.x):
+            #print "this is x " + str(x)
             #print Map.map_array[x, y]
             o = Map.map_array[x, y]
-            #print o
-            if o != 0:
+            if isinstance(o, Objects.Object):
                 object_type = o.object_type
                 print object_type
-            else:
-                object_type = ""
-            if object_type == "star":
-                o.draw(con)
-            if object_type == "moon":
-                o.draw(con)
-            if object_type == "planet":
-                o.draw(con)
-            # elif Map.map_array[x, y] == 2:
-            #     libtcod.console_set_char_background(con, x, y, libtcod.Color(0, 0, 255), libtcod.BKGND_SET)
+                if object_type == "star":
+                    o.draw(con)
+                if object_type == "moon":
+                    o.draw(con)
+                if object_type == "planet":
+                    o.draw(con)
+            elif isinstance(o, mc.Biome):
+                biome_name = o.name
+                #print biome_name
+                #print o.x
+                #print o.y
+                if biome_name == "mountain":
+                    o.draw(con)
+                if biome_name == "hills":
+                    o.draw(con)
+                if biome_name == "water":
+                    o.draw(con)
+
             # elif Map.map_array[x, y] == 3:
             #     libtcod.console_set_char_background(con, x, y, libtcod.Color(255, 255, 0), libtcod.BKGND_SET)
             # else:
@@ -71,7 +80,7 @@ def handle_keys():
 
 player = Objects.Ship(10, 10, "A", "player", libtcod.Color(255, 0, 0), False, True, 10, 10, 1, 1)
 
-system_map = mc.Map(MAP_WIDTH, MAP_HEIGHT, "star_system")
+system_map = mc.Map(MAP_WIDTH, MAP_HEIGHT, "planet")
 
 while not libtcod.console_is_window_closed():
     game_state = "playing"

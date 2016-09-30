@@ -107,7 +107,7 @@ class CelestialObject(Object):
         Object.__init__(self, x, y, char, name, color, blocks, always_visible)
         self.scope = scope
         self.object_type = object_type
-        self.size= size
+        self.size = size
         self.resources = resources
         self.atmosphere = atmosphere
         self.habitated = habitated
@@ -136,24 +136,4 @@ class CelestialObject(Object):
                     libtcod.console_set_char_background(con, x, y, self.color, libtcod.BKGND_SET)
 
 
-# class Star(CelestialObject):
-#     def __init__(self, x, y, char, name, color, blocks, always_visible, scope, atmosphere, habitated,
-#                  description, star_mass=8, resources=False):
-#         CelestialObject.__init__(self, x, y, char, name, color, blocks, always_visible, scope, resources, atmosphere,
-#                                   habitated, description)
-#
-# class Planet(CelestialObject):
-#     def __init__(self, x, y, char, name, color, blocks, always_visible, scope, atmosphere, habitated,
-#                  description, star_mass=8, resources=False):
-#         CelestialObject.__init__(self, x, y, char, name, color, blocks, always_visible, scope, resources, atmosphere,
-#                                   habitated, description)
-#
-# class Moon(CelestialObject):
-#     def __init__(self, x, y, char, name, color, blocks, always_visible, scope, atmosphere, habitated,
-#                  description, star_mass=8, resources=False):
-#         CelestialObject.__init__(self, x, y, char, name, color, blocks, always_visible, scope, resources, atmosphere,
-#                                   habitated, description)
-
-
-#testing
 

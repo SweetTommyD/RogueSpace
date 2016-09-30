@@ -2,7 +2,24 @@ import libtcodpy as libtcod
 import numpy as np
 import Objects as Objects
 
+class Biome:
+    def __init__(self, x, y, char, name, color, blocks=False, blocks_sight=False):
+        self.x = x
+        self.y = y
+        self.char = char
+        self.name = name
+        self.color = color
+        self.blocks = blocks
+        self.blocks_sight = blocks_sight
 
+    def draw(self, con):
+        #only show if it's visible to the player; or it's set to "always visible" and on an explored tile
+        # if (libtcod.map_is_in_fov(fov_map, self.x, self.y) or
+        #         (self.always_visible and map[self.x][self.y].explored)):
+        #set the color and then draw the character that represents this object at its position
+        libtcod.console_set_default_foreground(con, self.color)
+        libtcod.console_put_char(con, self.x, self.y, self.char, libtcod.BKGND_NONE)
+        #print "draw"
 class Map:
 
     galaxy_size = 0
@@ -23,6 +40,8 @@ class Map:
             self.make_galaxy(50, 75)
         if self.scope == "star_system":
             self.make_system("system", 10, 15, star_size, planet_size, moon_size)
+        if self.scope == "planet":
+            self.make_planet("mountain", 100)
 
     def scope(self):
         return self.scope
@@ -78,6 +97,77 @@ class Map:
                                            "moon", 1, moon_size, "stuff", "stuff", "Stuff", "stuff")
             self.map_array[moon_x][moon_y] = moon
             moon_number -= 1
+
+    def make_planet(self, planet_type, size):
+        forest = Biome(0, 0, "!", "forest", libtcod.Color(0, 150, 0), False, True)
+        plains = Biome(0, 0, "=", "plains", libtcod.Color(20, 200, 10), False, False)
+        desert = Biome(0, 0, "#", "desert", libtcod.Color(0, 150, 0), False, False)
+
+        elevation_array = np.zeros((self.x, self.y), dtype=object)
+        temp_array = np.zeros((self.x, self.y), dtype=object)
+        humidity_array = np.zeros((self.x, self.y), dtype=object)
+
+        elevation_array = Map.make_elevation(self, 5, elevation_array)
+        self.map_array = elevation_array
+        self.map_array = Map.make_water(self, 3, elevation_array)
+         
+        for x in range(self.x):
+            #print x
+            for y in range(self.y):
+                #print y
+                #print self.map_array[x][y]
+                if self.map_array[x][y] > 30 and self.map_array[x][y] < 80:
+                    self.map_array[x][y] = Biome(x, y, "m", "hills", libtcod.Color(100, 200, 40), False, True)
+                elif self.map_array[x][y] > 80 and self.map_array[x][y] < 200:
+                    self.map_array[x][y] = Biome(x, y, "M", "mountain", libtcod.Color(200, 200, 200), True, True)
+                elif self.map_array[x][y] == "200":
+                    self.map_array[x][y] = Biome(x, y, "W", "water", libtcod.Color(0, 0, 255), True, False)
+        #self.map_array = Map.make_water(self, 5, water_array, completed_elevation_array)
+
+    def make_elevation(self, seeds, array):
+        while seeds > 0:
+            random_x = libtcod.random_get_int(0, 0, self.x-1)
+            random_y = libtcod.random_get_int(0, 0, self.y-1)
+            new_array = array
+            steps = 100
+            while steps <= 100:
+                if random_x >= self.x-1 or random_y >= self.y-1 or random_x < -64 or random_y < -64:
+                    break
+                else:
+                    random_x = random_x + libtcod.random_get_int(0, -1, 1)
+                    #print random_x
+                    random_y = random_y + libtcod.random_get_int(0, -1, 1)
+                    #print random_y
+                    new_array[random_x][random_y] += 10
+                    #print array
+                    steps -= 1
+            seeds -= 1
+        #print new_array
+        return new_array
+
+    def make_water(self, seeds, elevation_array):
+        while seeds > 0:
+            random_x = libtcod.random_get_int(0, 0, self.x-1)
+            random_y = libtcod.random_get_int(0, 0, self.y-1)
+            steps = 100
+            new_array = elevation_array
+            while steps <= 100:
+                if random_x >= self.x-1 or random_y >= self.y-1 or random_x < -64 or random_y < -64:
+                    break
+                elif new_array[random_x][random_y] > 30 and new_array[random_x][random_y] < 200:
+                    break
+                else:
+                    random_x = random_x + libtcod.random_get_int(0, -1, 1)
+                    print random_x
+                    random_y = random_y + libtcod.random_get_int(0, -1, 1)
+                    print random_y
+                    new_array[random_x][random_y] = "200"
+                    print new_array[random_x][random_y]
+                    #print new_array
+                    steps -= 1
+            seeds -= 1
+        return new_array
+
 
     #
     # def make_planet(self.area):
