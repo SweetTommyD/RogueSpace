@@ -1,6 +1,7 @@
 import libtcodpy as libtcod
 import map_creation as mc
 import Objects
+import numpy as np
 
 SCREEN_HEIGHT = 65
 SCREEN_WIDTH = 110
@@ -18,26 +19,29 @@ def display_map(Map):
             #print "this is x " + str(x)
             #print Map.map_array[x, y]
             o = Map.map_array[x, y]
+
             if isinstance(o, Objects.Object):
-                object_type = o.object_type
-                print object_type
-                if object_type == "star":
-                    o.draw(con)
-                if object_type == "moon":
-                    o.draw(con)
-                if object_type == "planet":
-                    o.draw(con)
+                o.draw(con)
             elif isinstance(o, mc.Biome):
-                biome_name = o.name
-                #print biome_name
-                #print o.x
-                #print o.y
-                if biome_name == "mountain":
-                    o.draw(con)
-                if biome_name == "hills":
-                    o.draw(con)
-                if biome_name == "water":
-                    o.draw(con)
+                o.draw(con)
+
+            # print "new_o= " + str(new_o)
+            # if new_o <= 33:
+            #     b = int(new_o)
+            # if new_o > 33 and new_o <= 66:
+            #     g = int(new_o)
+            # if new_o > 66:
+            #     r = int(new_o)
+            #
+            # # R = int(o)/256 ^ 2
+            # #
+            # # G = int(o)/256 % 256 ^ 2
+            # #
+            # # B = int(o) % 256
+            # # #print new_o
+            # libtcod.console_set_char_background(con, x, y, libtcod.Color(r, g, b), libtcod.BKGND_SET)
+
+            #libtcod.console_set_char_background(con, x, y, libtcod.Color(0, 0, o), libtcod.BKGND_SET)
 
             # elif Map.map_array[x, y] == 3:
             #     libtcod.console_set_char_background(con, x, y, libtcod.Color(255, 255, 0), libtcod.BKGND_SET)
@@ -77,10 +81,13 @@ def handle_keys():
         else:
             #test for other keys
             key_char = chr(key.c)
+            #if key_char == '<':
+                #go down stairs, if the player is on them
+
 
 player = Objects.Ship(10, 10, "A", "player", libtcod.Color(255, 0, 0), False, True, 10, 10, 1, 1)
 
-system_map = mc.Map(MAP_WIDTH, MAP_HEIGHT, "planet")
+system_map = mc.Map(MAP_WIDTH, MAP_HEIGHT, "planet", "ice")
 
 while not libtcod.console_is_window_closed():
     game_state = "playing"

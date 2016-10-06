@@ -36,12 +36,12 @@ class Map:
         planet_size = 4
         moon_size = 1
 
-        if self.scope == "galaxy_map":
+        if self.scope == "galaxy":
             self.make_galaxy(50, 75)
-        if self.scope == "star_system":
+        if self.scope == "star":
             self.make_system("system", 10, 15, star_size, planet_size, moon_size)
         if self.scope == "planet":
-            self.make_planet("mountain", 100)
+            self.make_planet(100, self.area)
 
     def scope(self):
         return self.scope
@@ -98,31 +98,197 @@ class Map:
             self.map_array[moon_x][moon_y] = moon
             moon_number -= 1
 
-    def make_planet(self, planet_type, size):
-        forest = Biome(0, 0, "!", "forest", libtcod.Color(0, 150, 0), False, True)
-        plains = Biome(0, 0, "=", "plains", libtcod.Color(20, 200, 10), False, False)
-        desert = Biome(0, 0, "#", "desert", libtcod.Color(0, 150, 0), False, False)
+    def make_planet(self, size, planet_type="temperate"):
 
         elevation_array = np.zeros((self.x, self.y), dtype=object)
-        temp_array = np.zeros((self.x, self.y), dtype=object)
+        tempr_array = np.zeros((self.x, self.y), dtype=object)
         humidity_array = np.zeros((self.x, self.y), dtype=object)
 
-        elevation_array = Map.make_elevation(self, 5, elevation_array)
-        self.map_array = elevation_array
-        self.map_array = Map.make_water(self, 3, elevation_array)
-         
-        for x in range(self.x):
-            #print x
-            for y in range(self.y):
-                #print y
-                #print self.map_array[x][y]
-                if self.map_array[x][y] > 30 and self.map_array[x][y] < 80:
-                    self.map_array[x][y] = Biome(x, y, "m", "hills", libtcod.Color(100, 200, 40), False, True)
-                elif self.map_array[x][y] > 80 and self.map_array[x][y] < 200:
-                    self.map_array[x][y] = Biome(x, y, "M", "mountain", libtcod.Color(200, 200, 200), True, True)
-                elif self.map_array[x][y] == "200":
-                    self.map_array[x][y] = Biome(x, y, "W", "water", libtcod.Color(0, 0, 255), True, False)
-        #self.map_array = Map.make_water(self, 5, water_array, completed_elevation_array)
+        if planet_type == "temperate":
+
+            elevation_array = Map.make_elevation(self, 7, elevation_array)
+            water_array = Map.make_water(self, 3, elevation_array)
+            tempr_array = Map.make_temp(self, water_array, tempr_array)
+            humidity_array = Map.make_humidity(self, water_array, humidity_array)
+            self.map_array = water_array
+
+            #self.map_array = Map.make_temp(self, 1000, elevation_array, tempr_array)
+
+            for x in range(self.x):
+                #print x
+                for y in range(self.y):
+                    #print y
+                    #print self.map_array[x][y]
+                    humidity = humidity_array[x][y]
+                    if self.map_array[x][y] > 30 and self.map_array[x][y] < 80:
+                        self.map_array[x][y] = Biome(x, y, "m", "hills", libtcod.Color(100, 100, 100), False, True)
+                    elif self.map_array[x][y] > 80 and self.map_array[x][y] < 200:
+                        self.map_array[x][y] = Biome(x, y, "M", "mountain", libtcod.Color(200, 200, 200), True, True)
+                    elif self.map_array[x][y] == "200":
+                        self.map_array[x][y] = Biome(x, y, "W", "water", libtcod.Color(0, 0, 255), True, False)
+                    elif tempr_array[x][y] > 80 and humidity < 20:
+                        self.map_array[x][y] = Biome(x, y, "#", "desert", libtcod.Color(200, 100, 0), False, False)
+                    elif tempr_array[x][y] < 40 and humidity < 50:
+                        self.map_array[x][y] = Biome(x, y, "_", "tundra", libtcod.Color(0, 100, 200), False, False)
+                    elif tempr_array[x][y] > 80 and humidity > 90:
+                        self.map_array[x][y] = Biome(x, y, "$", "jungle", libtcod.Color(0, 255, 0), False, True)
+                    elif tempr_array[x][y] > 40 and humidity > 60:
+                        self.map_array[x][y] = Biome(x, y, "!", "forest", libtcod.Color(0, 150, 50), False, True)
+                    else:
+                        self.map_array[x][y] = Biome(x, y, "=", "plains", libtcod.Color(100, 200, 50), False, False)
+
+        if planet_type == "arid":
+
+            elevation_array = Map.make_elevation(self, 7, elevation_array)
+            water_array = Map.make_water(self, 1, elevation_array)
+            tempr_array = Map.make_temp(self, water_array, tempr_array)
+            humidity_array = Map.make_humidity(self, water_array, humidity_array)
+            self.map_array = water_array
+
+            #self.map_array = Map.make_temp(self, 1000, elevation_array, tempr_array)
+
+            for x in range(self.x):
+                for y in range(self.y):
+                    humidity = humidity_array[x][y] - 40
+                    temperature = tempr_array[x][y] + 40
+
+                    if self.map_array[x][y] > 30 and self.map_array[x][y] < 80:
+                        self.map_array[x][y] = Biome(x, y, "m", "hills", libtcod.Color(100, 100, 100), False, True)
+                    elif self.map_array[x][y] > 80 and self.map_array[x][y] < 200:
+                        self.map_array[x][y] = Biome(x, y, "M", "mountain", libtcod.Color(200, 200, 200), True, True)
+                    elif self.map_array[x][y] == "200":
+                        self.map_array[x][y] = Biome(x, y, "W", "water", libtcod.Color(0, 0, 255), True, False)
+                    elif temperature > 80 and humidity < 20:
+                        self.map_array[x][y] = Biome(x, y, "x", "wastes", libtcod.Color(200, 100, 0), False, False)
+                    elif temperature < 40 and humidity < 50:
+                        self.map_array[x][y] = Biome(x, y, "_", "tundra", libtcod.Color(200, 200, 200), False, False)
+                    elif temperature > 40 and humidity > 40:
+                        self.map_array[x][y] = Biome(x, y, "=", "desert", libtcod.Color(150, 150, 50), False, False)
+                    else:
+                        self.map_array[x][y] = Biome(x, y, "#", "scrub", libtcod.Color(255, 200, 50), False, True)
+
+        if planet_type == "water":
+
+            elevation_array = Map.make_elevation(self, 7, elevation_array)
+            water_array = Map.make_water(self, 3, elevation_array)
+            tempr_array = Map.make_temp(self, water_array, tempr_array)
+            humidity_array = Map.make_humidity(self, water_array, humidity_array)
+            self.map_array = water_array
+
+            #self.map_array = Map.make_temp(self, 1000, elevation_array, tempr_array)
+
+            for x in range(self.x):
+                #print x
+                for y in range(self.y):
+                    #print y
+                    #print self.map_array[x][y]
+                    if self.map_array[x][y] > 30 and self.map_array[x][y] < 80:
+                        self.map_array[x][y] = Biome(x, y, "m", "hills", libtcod.Color(100, 100, 100), False, True)
+                    elif self.map_array[x][y] > 80 and self.map_array[x][y] < 200:
+                        self.map_array[x][y] = Biome(x, y, "M", "mountain", libtcod.Color(200, 200, 200), True, True)
+                    elif self.map_array[x][y] == "200":
+                        self.map_array[x][y] = Biome(x, y, "W", "water", libtcod.Color(0, 0, 255), True, False)
+                    elif tempr_array[x][y] > 80 and humidity < 20:
+                        self.map_array[x][y] = Biome(x, y, "#", "desert", libtcod.Color(200, 100, 0), False, False)
+                    elif tempr_array[x][y] < 40 and humidity < 50:
+                        self.map_array[x][y] = Biome(x, y, "_", "tundra", libtcod.Color(0, 100, 200), False, False)
+                    elif tempr_array[x][y] > 80 and humidity > 80:
+                        self.map_array[x][y] = Biome(x, y, "$", "jungle", libtcod.Color(0, 255, 0), False, True)
+                    elif tempr_array[x][y] > 40 and humidity > 60:
+                        self.map_array[x][y] = Biome(x, y, "!", "forest", libtcod.Color(0, 150, 50), False, True)
+                    else:
+                        self.map_array[x][y] = Biome(x, y, "=", "plains", libtcod.Color(100, 200, 50), False, False)
+
+        if planet_type == "forest":
+
+            elevation_array = Map.make_elevation(self, 7, elevation_array)
+            water_array = Map.make_water(self, 3, elevation_array)
+            tempr_array = Map.make_temp(self, water_array, tempr_array)
+            humidity_array = Map.make_humidity(self, water_array, humidity_array)
+            self.map_array = water_array
+
+            #self.map_array = Map.make_temp(self, 1000, elevation_array, tempr_array)
+
+            for x in range(self.x):
+                #print x
+                for y in range(self.y):
+                    humidity = humidity_array[x][y] + 60
+                    #print y
+                    #print self.map_array[x][y]
+                    if self.map_array[x][y] > 30 and self.map_array[x][y] < 80:
+                        self.map_array[x][y] = Biome(x, y, "m", "hills", libtcod.Color(100, 100, 100), False, True)
+                    elif self.map_array[x][y] > 80 and self.map_array[x][y] < 200:
+                        self.map_array[x][y] = Biome(x, y, "M", "mountain", libtcod.Color(200, 200, 200), True, True)
+                    elif self.map_array[x][y] == "200":
+                        self.map_array[x][y] = Biome(x, y, "W", "water", libtcod.Color(0, 0, 255), True, False)
+                    elif tempr_array[x][y] > 80 and humidity < 20:
+                        self.map_array[x][y] = Biome(x, y, "#", "desert", libtcod.Color(200, 100, 0), False, False)
+                    elif tempr_array[x][y] < 40 and humidity < 50:
+                        self.map_array[x][y] = Biome(x, y, "_", "tundra", libtcod.Color(0, 100, 200), False, False)
+                    elif tempr_array[x][y] > 80 and humidity > 80:
+                        self.map_array[x][y] = Biome(x, y, "$", "jungle", libtcod.Color(0, 255, 0), False, True)
+                    elif tempr_array[x][y] > 40 and humidity > 60:
+                        self.map_array[x][y] = Biome(x, y, "!", "forest", libtcod.Color(0, 150, 50), False, True)
+                    else:
+                        self.map_array[x][y] = Biome(x, y, "=", "plains", libtcod.Color(100, 200, 50), False, False)
+
+        if planet_type == "ice":
+
+            elevation_array = Map.make_elevation(self, 7, elevation_array)
+            water_array = Map.make_water(self, 3, elevation_array)
+            tempr_array = Map.make_temp(self, water_array, tempr_array)
+            humidity_array = Map.make_humidity(self, water_array, humidity_array)
+            self.map_array = water_array
+
+            #self.map_array = Map.make_temp(self, 1000, elevation_array, tempr_array)
+
+            for x in range(self.x):
+                #print x
+                for y in range(self.y):
+                    humidity = humidity_array[x][y] - 20
+                    temperature = tempr_array[x][y] - 70
+                    #print y
+                    #print self.map_array[x][y]
+                    if self.map_array[x][y] > 30 and self.map_array[x][y] < 80:
+                        self.map_array[x][y] = Biome(x, y, "m", "hills", libtcod.Color(100, 100, 100), False, True)
+                    elif self.map_array[x][y] > 80 and self.map_array[x][y] < 200:
+                        self.map_array[x][y] = Biome(x, y, "M", "mountain", libtcod.Color(200, 200, 200), True, True)
+                    elif temperature < 20 and self.map_array[x][y] == "200":
+                        self.map_array[x][y] = Biome(x, y, "i", "ice", libtcod.Color(0, 100, 100), False, False)
+                    elif self.map_array[x][y] == "200":
+                        self.map_array[x][y] = Biome(x, y, "W", "water", libtcod.Color(0, 0, 255), True, False)
+                    elif temperature < 20 and humidity < 20:
+                        self.map_array[x][y] = Biome(x, y, "_", "tundra", libtcod.Color(0, 100, 200), False, True)
+                    elif temperature < 40 and humidity < 50:
+                        self.map_array[x][y] = Biome(x, y, "^", "steppe", libtcod.Color(50, 50, 200), False, False)
+                    elif temperature > 40 and humidity > 60:
+                        self.map_array[x][y] = Biome(x, y, "!", "forest", libtcod.Color(0, 150, 50), False, True)
+                    else:
+                        self.map_array[x][y] = Biome(x, y, "*", "snow", libtcod.Color(255, 255, 255), False, False)
+
+        if planet_type == "barren":
+
+            elevation_array = Map.make_elevation(self, 7, elevation_array)
+            #water_array = Map.make_water(self, 3, elevation_array)
+            #tempr_array = Map.make_temp(self, water_array, tempr_array)
+            #humidity_array = Map.make_humidity(self, water_array, humidity_array)
+            self.map_array = elevation_array
+
+            #self.map_array = Map.make_temp(self, 1000, elevation_array, tempr_array)
+
+            for x in range(self.x):
+                #print x
+                for y in range(self.y):
+                    #humidity = humidity_array[x][y] - 20
+                    #temperature = tempr_array[x][y] - 70
+                    #print y
+                    #print self.map_array[x][y]
+                    if self.map_array[x][y] > 30 and self.map_array[x][y] < 80:
+                        self.map_array[x][y] = Biome(x, y, "m", "hills", libtcod.Color(100, 100, 100), False, True)
+                    elif self.map_array[x][y] > 80 and self.map_array[x][y] < 200:
+                        self.map_array[x][y] = Biome(x, y, "M", "mountain", libtcod.Color(200, 200, 200), True, True)
+                    else:
+                        self.map_array[x][y] = Biome(x, y, "-", "barren", libtcod.Color(255, 255, 255), False, False)
 
     def make_elevation(self, seeds, array):
         while seeds > 0:
@@ -158,20 +324,163 @@ class Map:
                     break
                 else:
                     random_x = random_x + libtcod.random_get_int(0, -1, 1)
-                    print random_x
+                    #print random_x
                     random_y = random_y + libtcod.random_get_int(0, -1, 1)
-                    print random_y
+                    #print random_y
                     new_array[random_x][random_y] = "200"
-                    print new_array[random_x][random_y]
+                    #print new_array[random_x][random_y]
                     #print new_array
                     steps -= 1
             seeds -= 1
         return new_array
 
+    def make_temp(self, elevation_array, tempr_array):
+        center_y = self.y/2
+        center_x = self.x/2
+        #print "center y " + str(center_y)
+        step = 100
+        tempr_const = 5
+        tempr = 0
 
-    #
-    # def make_planet(self.area):
-    #
+        for y in range(self.y-1):
+            for x in range(self.x-1):
+                if y < center_y:
+                    #print tempr
+                    tempr = y * tempr_const
+                    tempr_array[x][y] = tempr
+                if y >= center_y:
+                    #print tempr
+                    tempr = (self.y - y) * tempr_const
+                    tempr_array[x][y] = tempr
+                if elevation_array[x][y] > 0 and elevation_array[x][y] < 200:
+                    tempr -= elevation_array[x][y]
+                    tempr_array[x][y] = tempr
+                if elevation_array[x][y] == "200":
+                    tempr -= 5
+                    tempr_array[x][y] = tempr
+
+            #smoothing
+        for y in range(self.y-1):
+            for x in range(self.x-1):
+                point0 = tempr_array[x][y]
+                point1 = tempr_array[x+1][y]
+                if y < center_y:
+                    if point0 != y:
+                        point1 = (point0+point1)/2
+                        tempr_array[x+1][y] = point1
+                if y >= center_y:
+                    if point0!= (self.y - y) * tempr_const:
+                        point1 = (point0+point1)/2
+                        tempr_array[x+1][y] = point1
+
+        for y in range(self.y):
+            for x in range(self.x):
+                greatest = np.amax(tempr_array)
+                least = np.amin(tempr_array)
+
+                cal_greatest = abs(least) + greatest
+
+                new_o = float(float(tempr_array[x, y] - least)/float(cal_greatest))*100
+
+                print new_o
+
+                tempr_array[x][y] = int(new_o)
+
+        return tempr_array
+
+    def make_humidity(self, elevation_array, humidity_array):
+        # random_x = libtcod.random_get_int(0, 0, self.x-1)
+        # random_y = libtcod.random_get_int(0, 0, self.y-1)
+        #
+        # seed = 2000
+        #
+        # humidity = 0
+        # humidity1 = 0
+        #
+        # while seed > 0:
+        #     if random_x > self.x-1 or random_y > self.y-1:
+        #         break
+        #     else:
+        #         if elevation_array[random_x][random_y] > 0 and elevation_array[random_x][random_y] < 200:
+        #             humidity += elevation_array[random_x][random_y]
+        #             humidity1 -= elevation_array[random_x][random_y]
+        #             humidity_array[random_x-1][random_y] = humidity
+        #             humidity_array[random_x+1][random_y] = humidity1
+        #         elif elevation_array[random_x][random_y] == "200":
+        #             humidity += 40
+        #             humidity_array[random_x][random_y] = humidity
+        #         else:
+        #             humidity -= 20
+        #             humidity_array[random_x][random_y] = humidity
+        #
+        #         random_x += libtcod.random_get_int(0, -1, 1)
+        #         random_y += libtcod.random_get_int(0, -1, 1)
+        #         seed -= 1
+
+        for y in range(self.y-1):
+            humidity = 0
+            humidity1 = 0
+            for x in range(self.x-1):
+                if elevation_array[x][y] > 0 and elevation_array[x][y] < 200:
+                    humidity += elevation_array[x][y]
+                    humidity1 -= elevation_array[x][y]
+                    humidity_array[x-1][y] = humidity
+                    humidity_array[x+1][y] = humidity1
+                elif elevation_array[x][y] == "200":
+                    humidity += 20
+                    humidity = humidity
+                else:
+                    humidity -= 20
+                    humidity = humidity
+
+        for y in range(self.y-1):
+            for x in range(self.x-1):
+                point0 = humidity
+                point1 = humidity_array[x+1][y]
+
+                point1 = (point0+point1)/2
+                humidity_array[x+1][y] = point1
+
+        for y in range(self.y):
+            for x in range(self.x):
+                greatest = np.amax(humidity_array)
+                least = np.amin(humidity_array)
+
+                cal_greatest = abs(least) + greatest
+
+                new_o = float(float(humidity_array[x, y] - least)/float(cal_greatest))*100
+
+                humidity = int(new_o)
+
+        return humidity_array
+
+        # for y in range(self.y):
+        #     for x in range(self.x):
+        #         if y < center_y:
+        #             print tempr
+        #             tempr = y * tempr_const
+        #             tempr_array[x][y] = tempr
+        #         if y >= center_y:
+        #             print tempr
+        #             tempr = (self.y - y) * tempr_const
+        #             tempr_array[x][y] = tempr
+        #         if elevation_array[x][y] > 0 and elevation_array[x][y] < 200:
+        #             tempr -= elevation_array[x][y]
+        #             tempr_array[x][y] = tempr
+        #             if x >= self.x-1 or y >= self.y-1 or x < -64 or y < -64:
+        #                 x += libtcod.random_get_int(0, -1, 0)
+        #                 y += libtcod.random_get_int(0, -1, 1)
+        #             # else:
+        #             #     x = x
+        #             #     y = y
+        #         if elevation_array[x][y] == "200":
+        #             tempr -= 1
+        #             tempr_array[x][y] = tempr
+
+        #print tempr_array
+
+
+
     # def make_area(self.area):
 
         #draw_lanes(self.map_array, libtcod.random_get_int(0, 1, 4))
